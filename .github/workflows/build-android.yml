@@ -1,0 +1,75 @@
+﻿name: Build Android APK (Gratuit)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+   
+    steps:
+      # === 1. RÉCUPÉRATION DU CODE ===
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # === 2. SETUP NODE.JS ===
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # === 3. SETUP JAVA ===
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # === 4. SETUP ANDROID SDK ===
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # === 5. INSTALLATION DES DÉPENDANCES ===
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      # === 6. PRÉBUILD EXPO ===
+      - name: Prebuild (Expo -> Android natif)
+        run: npx expo prebuild --platform android --clean
+
+      # === 7. CONFIGURATION GRADLE ===
+      - name: Configure Gradle
+        run: |
+          echo "systemProp.gradle.allowInsecureProtocol=true" >> android/gradle.properties
+          chmod +x android/gradlew
+
+      # === 8. BUILD APK ===
+      - name: Build APK (Gradle)
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      # === 9. UPLOAD APK ===
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: stockia-app
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 30
+
+      # === 10. UPLOAD SUR RELEASE (OPTIONNEL) ===
+      - name: Upload to Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          tag_name: latest
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

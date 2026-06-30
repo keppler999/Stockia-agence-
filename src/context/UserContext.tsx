@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SQLite from "expo-sqlite";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
+import { openDatabaseAsync } from "../database/sqlite";
 
 // === CONSTANTES ===
 const DATABASE_NAME = "stockia_secure.db";
@@ -179,8 +179,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let id = await AsyncStorage.getItem(STORAGE_KEYS.DEVICE_ID);
       if (!id) {
-        const deviceId = (await Device.getDeviceTypeAsync()) || "unknown";
-        id = `STK-${deviceId.substring(0, 8)}-${Date.now().toString(36)}`;
+        // Prefer modelName when available; fallback to brand/modelId
+        const modelName = (Device as any).modelName ?? `${(Device as any).brand ?? "unknown"}-${(Device as any).modelId ?? "id"}`;
+        id = `STK-${String(modelName).substring(0, 8)}-${Date.now().toString(36)}`;
         await AsyncStorage.setItem(STORAGE_KEYS.DEVICE_ID, id);
       }
       setDeviceId(id);
@@ -222,7 +223,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let nomBoutique = "Stockia Store";
 
       try {
-        const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        const db = await openDatabaseAsync(DATABASE_NAME);
         const deviseResult = await db.getFirstAsync<{ valeur: string }>(
           "SELECT valeur FROM parametres_systeme WHERE cle = 'devise_symbole';"
         );
@@ -255,7 +256,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = await AsyncStorage.getItem(STORAGE_KEYS.USER_TOKEN);
       if (!token) return false;
 
-      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      const db = await openDatabaseAsync(DATABASE_NAME);
       const session = await db.getFirstAsync<{ actif: number; date_fin: string }>(
         "SELECT actif, date_fin FROM sessions WHERE token = ? AND actif = 1;",
         [token]
@@ -281,7 +282,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // === CONNEXION ===
   const login = useCallback(async (username: string, password: string): Promise<UserSession> => {
     try {
-      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      const db = await openDatabaseAsync(DATABASE_NAME);
 
       const userResult = await db.getFirstAsync<{
         id: number;
@@ -352,7 +353,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.USER_TOKEN);
       if (token) {
-        const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        const db = await openDatabaseAsync(DATABASE_NAME);
         await db.runAsync("UPDATE sessions SET actif = 0, date_fin = ? WHERE token = ?;", [
           new Date().toISOString(),
           token,
@@ -393,7 +394,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem(STORAGE_KEYS.USER_SESSION, JSON.stringify(updatedUser));
       setUser(updatedUser);
 
-      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      const db = await openDatabaseAsync(DATABASE_NAME);
       const fields: string[] = [];
       const values: any[] = [];
 
@@ -431,12 +432,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await Promise.all(savePromises);
 
       if (newSettings.devise) {
-        const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        const db = await openDatabaseAsync(DATABASE_NAME);
         await db.runAsync("UPDATE parametres_systeme SET valeur = ? WHERE cle = 'devise_symbole';", [newSettings.devise]);
       }
 
       if (newSettings.nomBoutique) {
-        const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+        const db = await openDatabaseAsync(DATABASE_NAME);
         await db.runAsync("UPDATE parametres_systeme SET valeur = ? WHERE cle = 'nom_boutique';", [newSettings.nomBoutique]);
       }
     } catch (error) {
@@ -458,7 +459,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // === VÉRIFICATION DE LA LICENCE ===
   const checkLicence = useCallback(async (): Promise<boolean> => {
     try {
-      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      const db = await openDatabaseAsync(DATABASE_NAME);
       const licenceResult = await db.getFirstAsync<{
         cle_licence: string;
         device_fingerprint: string;
@@ -559,4 +560,4 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>;
 };
 
-export default UserContext; 
+export default UserContext;

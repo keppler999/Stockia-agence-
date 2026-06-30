@@ -318,34 +318,34 @@ export const Input = forwardRef<TextInput, InputProps>(
     const sizeStyle = getSizeStyles();
 
     const inputContainerStyles: ViewStyle[] = [
-      styles.inputContainer,
-      {
-        borderWidth: variantStyle.borderWidth || 0,
-        borderColor: variantStyle.borderColor || "transparent",
-        borderBottomWidth: variantStyle.borderBottomWidth || 0,
-        borderBottomColor: variantStyle.borderBottomColor || "transparent",
-        backgroundColor: variantStyle.backgroundColor || "#FFFFFF",
-        borderRadius: variant === "underline" ? 0 : 8,
-        opacity: disabled ? 0.6 : 1,
-        width: fullWidth ? "100%" : undefined,
-      },
-      style,
-      containerStyle,
-    ];
+    styles.inputContainer,
+    {
+      borderWidth: variantStyle.borderWidth || 0,
+      borderColor: variantStyle.borderColor || "transparent",
+      borderBottomWidth: variantStyle.borderBottomWidth || 0,
+      borderBottomColor: variantStyle.borderBottomColor || "transparent",
+      backgroundColor: variantStyle.backgroundColor || "#FFFFFF",
+      borderRadius: variant === "underline" ? 0 : 8,
+      opacity: disabled ? 0.6 : 1,
+      width: fullWidth ? "100%" : undefined,
+    },
+    ...(style ? [style] : []),
+    ...(containerStyle ? [containerStyle] : []),
+]
 
     const inputStyles: TextStyle[] = [
-      styles.input,
-      {
-        fontSize: sizeStyle.fontSize,
-        paddingVertical: sizeStyle.paddingVertical,
-        paddingHorizontal: sizeStyle.paddingHorizontal,
-        height: sizeStyle.height,
-        color: disabled ? "#999" : "#333",
-      },
-      inputStyle,
-      leftIcon && { paddingLeft: 36 },
-      (rightIcon || secureTextEntry || clearable) && { paddingRight: 36 },
-    ];
+    styles.input,
+    {
+      fontSize: sizeStyle.fontSize,
+      paddingVertical: sizeStyle.paddingVertical,
+      paddingHorizontal: sizeStyle.paddingHorizontal,
+      height: sizeStyle.height,
+      color: disabled ? "#999" : "#333",
+    },
+    ...(inputStyle ? [inputStyle] : []),
+    ...(leftIcon ? [{ paddingLeft: 36 }] : []),
+    ...(rightIcon || secureTextEntry || clearable ? [{ paddingRight: 36 }] : []),
+]
 
     // === RENDU PRINCIPAL ===
     return (

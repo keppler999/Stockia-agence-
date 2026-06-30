@@ -250,16 +250,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <Ionicons name="add" size={18} color="#FFF" />
             </TouchableOpacity>
           </View>
-        ) : (
-          <Button
-            title={isOutOfStock ? "Rupture" : "Ajouter"}
-            variant={isOutOfStock ? "default" : "primary"}
-            size="small"
-            onPress={handleAddToCart}
-            disabled={!canAdd}
-            fullWidth
-          />
-        )}
+        ) : <Button
+  title={isOutOfStock ? "Rupture" : "Ajouter"}
+  variant={isOutOfStock ? "ghost" : "primary"}
+  size="small"
+  onPress={handleAddToCart}
+  disabled={!canAdd}
+  fullWidth
+/>}
       </View>
     );
   };

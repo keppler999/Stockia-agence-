@@ -166,8 +166,9 @@ export const Card: React.FC<CardProps> = ({
       padding: padding,
       opacity: disabled ? 0.6 : 1,
     },
-    style,
-  ];
+    ...(style ? [style] : []),
+]
+
 
   // === RENDU DU BADGE ===
   const renderBadge = () => {

@@ -64,8 +64,9 @@ export function useApp(): UseAppReturn {
   });
   const [startTime] = useState(Date.now());
 
-  // === RÉFÉRENCES ===
-  let uptimeInterval: NodeJS.Timeout | null = null;
+  // Remplacez : let uptimeInterval: NodeJS.Timeout | null = null;
+// Par :
+let uptimeInterval: ReturnType<typeof setTimeout> | null = null;
 
   // === INITIALISATION ===
   useEffect(() => {
@@ -83,7 +84,7 @@ export function useApp(): UseAppReturn {
 
   const initializeApp = async () => {
     try {
-      const deviceInfo = await getDeviceInfo();
+            const deviceInfo = await getDeviceInfo();
       const networkInfo = await checkNetworkStatus();
       const batteryInfo = await getBatteryInfo();
       const offlineMode = await checkOfflineMode();
@@ -92,7 +93,7 @@ export function useApp(): UseAppReturn {
         ...prev,
         deviceInfo,
         isConnected: networkInfo.isConnected,
-        connectionType: networkInfo.connectionType,
+        connectionType: networkInfo.connectionType as "unknown" | "none" | "wifi" | "cellular" | "ethernet",
         batteryLevel: batteryInfo.level,
         isCharging: batteryInfo.isCharging,
         isOfflineMode: offlineMode,

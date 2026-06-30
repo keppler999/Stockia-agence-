@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SQLite from "expo-sqlite";
-import * as Crypto from "expo-crypto";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 
@@ -180,7 +179,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let id = await AsyncStorage.getItem(STORAGE_KEYS.DEVICE_ID);
       if (!id) {
-        const deviceId = (await Device.getDeviceIdAsync()) || "unknown";
+        const deviceId = (await Device.getDeviceTypeAsync()) || "unknown";
         id = `STK-${deviceId.substring(0, 8)}-${Date.now().toString(36)}`;
         await AsyncStorage.setItem(STORAGE_KEYS.DEVICE_ID, id);
       }

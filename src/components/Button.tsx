@@ -86,8 +86,8 @@ export const Button: React.FC<ButtonProps> = ({
       opacity: disabled || loading ? 0.6 : 1,
       width: fullWidth ? "100%" : undefined,
     },
-    style,
-  ];
+    ...(style ? [style] : []),
+]
 
   const textStyles: TextStyle[] = [
     styles.text,
@@ -95,8 +95,8 @@ export const Button: React.FC<ButtonProps> = ({
       color: variantStyle.text,
       fontSize: sizeStyle.fontSize,
     },
-    textStyle,
-  ];
+    ...(textStyle ? [textStyle] : []),
+]
 
   // === RENDU ===
   return (

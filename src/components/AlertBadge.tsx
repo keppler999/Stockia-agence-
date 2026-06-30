@@ -152,17 +152,17 @@ export const AlertBadge: React.FC<AlertBadgeProps> = ({
       borderColor: "#FFFFFF",
     },
     styles[position],
-    style,
+    style || {},
   ];
 
-  const textStyles: TextStyle[] = [
+  const textStyles: TextStyle[] =[
     styles.text,
     {
       fontSize: sizeStyle.fontSize,
       color: variantStyle.text,
     },
-    textStyle,
-  ];
+    ...(textStyle ? [textStyle] : []),
+]
 
   // === RENDU ===
   const renderContent = () => {

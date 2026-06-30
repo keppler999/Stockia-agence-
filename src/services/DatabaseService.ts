@@ -437,9 +437,8 @@ export class DatabaseService {
       const values = Object.values(data);
 
       const query = `INSERT INTO ${table} (${keys.join(", ")}) VALUES (${placeholders});`;
-      const result = await db.runAsync(query, values);
 
-      return Number(result.lastInsertRowId);
+      return Number((await db.runAsync(query, values)).lastInsertRowId);
     } catch (error) {
       console.error(`[DatabaseService] Erreur create ${table}:`, error);
       throw error;
@@ -733,8 +732,8 @@ export class DatabaseService {
   // === SAUVEGARDE ===
   async backup(): Promise<BackupInfo> {
     try {
-      const dbPath = `${FileSystem.documentDirectory}SQLite/${DATABASE_NAME}`;
-      const info = await FileSystem.getInfoAsync(dbPath);
+      const dbPath = `${FileSystem.}SQLite/${DATABASE_NAME}`;
+      const info = await FileSystedocumentDirectorym.getInfoAsync(dbPath);
 
       if (!info.exists) {
         throw new Error("Base de données non trouvée");
